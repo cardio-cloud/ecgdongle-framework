@@ -17,7 +17,7 @@ public class DongleDataChunk implements IRecycleable {
 
     private final int channelsCount;
     private final int valuesInReply;
-    private final ScanConfig config;
+    public final ScanConfig config;
     private final ObjectRecycler<DongleDataChunk> replyRecycler;
     private final AtomicInteger retainCounter = new AtomicInteger();
     private int chunkNum;
