@@ -332,7 +332,7 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
                         }
                         ECGDongleDevice device = mp.getDevice();
                         ScanConfig config = mp.getScanConfig();
-                        if (device == null || config == null)
+                        if (device == null)
                             return;
                         onScanStoppedListener.onScanStopped(device, config);
                     }

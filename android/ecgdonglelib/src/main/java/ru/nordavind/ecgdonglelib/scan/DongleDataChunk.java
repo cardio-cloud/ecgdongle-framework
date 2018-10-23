@@ -14,10 +14,9 @@ import ru.nordavind.ecgdonglelib.util.ObjectRecycler;
  */
 public class DongleDataChunk implements IRecycleable {
     public static final int PACKET_START_MARKER = 0xfe01fe02;
-
+    public final ScanConfig config;
     private final int channelsCount;
     private final int valuesInReply;
-    public final ScanConfig config;
     private final ObjectRecycler<DongleDataChunk> replyRecycler;
     private final AtomicInteger retainCounter = new AtomicInteger();
     private int chunkNum;
@@ -35,6 +34,7 @@ public class DongleDataChunk implements IRecycleable {
     /**
      * it is possible that some data was not received from ECG Dongle
      * if that happens, values is replaced with {@link SimpleCalibrationSettings#getAbsentValue()}
+     *
      * @return amount of bad values in this chunk
      */
     public int getBadValuesAmount() {
@@ -248,7 +248,7 @@ public class DongleDataChunk implements IRecycleable {
     }
 
     public void fillData(IntBuffer buffer) {
-        retainCounter.set(0);
+        retainCounter.set(1);
         int marker = buffer.get();
         if (marker != PACKET_START_MARKER)
             throw new RuntimeException("Bad start marker: " + marker);
