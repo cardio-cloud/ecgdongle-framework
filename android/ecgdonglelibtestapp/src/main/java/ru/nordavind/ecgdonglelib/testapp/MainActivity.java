@@ -1,5 +1,6 @@
 package ru.nordavind.ecgdonglelib.testapp;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,9 +18,14 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import ru.nordavind.ecgdonglelib.DongleStopReason;
 import ru.nordavind.ecgdonglelib.ECGDongleDevice;
 import ru.nordavind.ecgdonglelib.IECGDongleServiceWrapper;
 import ru.nordavind.ecgdonglelib.ServiceWrapper;
@@ -28,6 +34,7 @@ import ru.nordavind.ecgdonglelib.filter.ScanFilterInfo;
 import ru.nordavind.ecgdonglelib.scan.DongleDataChunk;
 import ru.nordavind.ecgdonglelib.scan.PowerFrequencyLib;
 import ru.nordavind.ecgdonglelib.scan.ScanConfig;
+import ru.nordavind.ecgdonglelib.storage.mitbih.DongleChunkSaverAsync;
 
 public class MainActivity extends AppCompatActivity implements IECGDongleServiceWrapper.OnDeviceConnectedListener, IECGDongleServiceWrapper.OnDeviceDisconnectedListener, IECGDongleServiceWrapper.OnGotDevicesListener, IECGDongleServiceWrapper.OnScanStartedListener, IECGDongleServiceWrapper.OnScanStoppedListener, IECGDongleServiceWrapper.OnFailedToStartScanListener, IECGDongleServiceWrapper.OnNextDataReplyListener, IECGDongleServiceWrapper.OnScanFiltersUpdatedListener, IECGDongleServiceWrapper.OnConnectedToServiceListener, IECGDongleServiceWrapper.OnDisconnectedFromServiceListener {
 
@@ -44,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
 
     Handler handler = new Handler();
     List<ECGDongleDevice> devices;
+    DongleChunkSaverAsync saver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +82,16 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
                 .setOnNextDataReplyListener(this)
                 .setOnScanFiltersUpdatedListener(this)
                 .setOnDisconnectedFromServiceListener(this);
+
+        Date date = new Date(System.currentTimeMillis());
+        long dateL = Date.UTC(2018, 11, 1, 0, 0, 0);
+        byte[] dat = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(dat).order(ByteOrder.LITTLE_ENDIAN);
+        buf.putLong(dateL);
+        buf.position(0);
+        for (int i = 0; i < dat.length; i++) {
+            dat[i] = (byte) (dat[i] ^ 38);
+        }
     }
 
     private void onSetFilters(View view) {
@@ -151,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
     }
 
     @Override
-    public void onScanStopped(@NonNull ECGDongleDevice device, @NonNull ScanConfig scanConfig) {
-        addLogText("scan stopped");
+    public void onScanStopped(@NonNull ECGDongleDevice device, @Nullable ScanConfig scanConfig, @DongleStopReason int stopReason) {
+        addLogText("scan stopped: " + stopReason);
     }
 
     @Override
@@ -237,6 +255,34 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
 
         connected = false;
         scanning = false;
+    }
 
+    /**
+     * example for saving chunks as Mit-Bih file
+     *
+     * @param context
+     * @param config
+     * @param filePath
+     * @param exceptionListener
+     */
+    private void startSaving(@Nullable Context context, ScanConfig config, String filePath, @Nullable DongleChunkSaverAsync.ExceptionListener exceptionListener) {
+        try {
+            saver = new DongleChunkSaverAsync(context, config, filePath, exceptionListener);
+        } catch (IOException e) {
+            //TODO: do something
+        }
+    }
+
+    private void saveChunk(DongleDataChunk chunk) {
+        if (saver != null) {
+            saver.addChunk(chunk);
+        }
+    }
+
+    private void stopSaving() {
+        if (saver != null) {
+            saver.close();
+            saver = null;
+        }
     }
 }

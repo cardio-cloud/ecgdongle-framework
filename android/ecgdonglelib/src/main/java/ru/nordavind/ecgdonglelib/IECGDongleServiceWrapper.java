@@ -202,9 +202,10 @@ public interface IECGDongleServiceWrapper {
         /**
          * @param device         ECG Dongle device used for the scan
          * @param scanConfig scanConfig of the scan
+         * @param stopReason
          */
         @UiThread
-        void onScanStopped(@NonNull ECGDongleDevice device, @NonNull ScanConfig scanConfig);
+        void onScanStopped(@NonNull ECGDongleDevice device, @Nullable ScanConfig scanConfig, @DongleStopReason int stopReason);
     }
 
     /**

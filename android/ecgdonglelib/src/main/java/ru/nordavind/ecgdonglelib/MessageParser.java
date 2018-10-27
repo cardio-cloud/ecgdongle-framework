@@ -5,6 +5,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +16,8 @@ import java.util.List;
 
 import ru.nordavind.ecgdonglelib.filter.FilterSettings;
 import ru.nordavind.ecgdonglelib.scan.ScanConfig;
+
+import static ru.nordavind.ecgdonglelib.Settings.TAG;
 
 /**
  * parses messages used to send data between service and service wrapper lib
@@ -35,8 +38,7 @@ public class MessageParser {
         try {
             return new ECGDongleDevice(new JSONObject(deviceStr));
         } catch (Exception e) {
-            if (BuildConfig.DEBUG)
-                throw new RuntimeException(e);
+            Log.e(TAG, "getDevice: ", e);
             return null;
         }
     }
@@ -58,8 +60,7 @@ public class MessageParser {
         try {
             return new ScanConfig(new JSONObject(bundle.getString(MessageBuilder.KEY_SCAN_CONFIG)));
         } catch (Exception e) {
-            if (BuildConfig.DEBUG)
-                throw new RuntimeException(e);
+            Log.e(TAG, "getScanConfig: ", e);
             return null;
         }
     }

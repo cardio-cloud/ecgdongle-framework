@@ -26,11 +26,10 @@ import static ru.nordavind.ecgdonglelib.Settings.TAG;
 public class DongleChunkSaverAsync implements IChunkSaver {
     private static int counter = 0;
 
-    private final ScanConfig config;
     private final HandlerThread fileThread;
     private final Handler handler;
     private final File outputFile;
-    private final int firstChunkNum;
+    private int firstChunkNum;
     private final Context context;
     private final ExceptionListener exceptionListener;
     private MitBihJoinedSaver saver;
@@ -45,10 +44,23 @@ public class DongleChunkSaverAsync implements IChunkSaver {
      * @param exceptionListener callback to be called when exception happens;
      */
     public DongleChunkSaverAsync(Context context, final DongleDataChunk firstChunk, final String filePath, @Nullable ExceptionListener exceptionListener) throws IOException {
-        this.context = context == null ? null : context.getApplicationContext();
-        this.config = firstChunk.config;
-        outputFile = new File(filePath);
+        this(context, firstChunk.config, filePath, exceptionListener);
         firstChunkNum = firstChunk.getChunkNum();
+    }
+
+    /**
+     * @param context           -- might be null. There is an issue in Android.
+     *                          If you create a file and then attach your android device to PC, the file
+     *                          will not be visible on PC until you reboot your device;
+     *                          Context is used solve that issue
+     * @param config            scan config
+     * @param filePath          file path to save to
+     * @param exceptionListener callback to be called when exception happens;
+     */
+    public DongleChunkSaverAsync(Context context, final ScanConfig config, final String filePath, @Nullable ExceptionListener exceptionListener) throws IOException {
+        this.context = context == null ? null : context.getApplicationContext();
+        outputFile = new File(filePath);
+        firstChunkNum = -1;
         this.exceptionListener = exceptionListener;
 
         fileThread = new HandlerThread(String.format(Locale.US, "dongle chunk saver thread #%d", ++counter));
@@ -60,17 +72,20 @@ public class DongleChunkSaverAsync implements IChunkSaver {
     }
 
     /**
-     * @param firstChunk        first chunk to save;
+     * @param config            scan config
      * @param filePath          file path to save to
      * @param exceptionListener callback to be called when exception happens;
      */
-    public DongleChunkSaverAsync(final DongleDataChunk firstChunk, final String filePath, @Nullable ExceptionListener exceptionListener) throws IOException {
-        this(null, firstChunk, filePath, exceptionListener);
+    public DongleChunkSaverAsync(ScanConfig config, String filePath, @Nullable ExceptionListener exceptionListener) throws IOException {
+        this(null, config, filePath, exceptionListener);
     }
 
     @Override
     public void addChunk(@NonNull final DongleDataChunk chunk) {
         chunk.retain();
+        if (firstChunkNum == -1) {
+            firstChunkNum = chunk.getChunkNum();
+        }
 
         handler.post(() -> {
             try {

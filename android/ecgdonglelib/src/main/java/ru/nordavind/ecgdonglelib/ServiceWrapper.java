@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -15,6 +16,7 @@ import android.support.annotation.UiThread;
 import android.util.Log;
 
 import java.util.List;
+import java.util.Set;
 
 import ru.nordavind.ecgdonglelib.filter.FilterSettings;
 import ru.nordavind.ecgdonglelib.scan.ScanConfig;
@@ -68,6 +70,23 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
             }
         }
         return local;
+    }
+
+    private static void logMessage(Message msg) {
+        Bundle bundle = (Bundle) msg.obj;
+        StringBuilder builder = new StringBuilder();
+        builder.append("incoming message: what: ").append(msg.what)
+                .append(", arg1: ").append(msg.arg1)
+                .append(", arg2: ").append(msg.arg2);
+        if (bundle != null) {
+            builder.append(", bundle:\n");
+            Set<String> keys = bundle.keySet();
+            for (String key : keys) {
+                Object value = bundle.get(key);
+                builder.append(key).append(": ").append(value).append("\n");
+            }
+        }
+        Log.d(TAG, "got message: " + builder.toString());
     }
 
     @Override
@@ -276,6 +295,9 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
         @Override
         public void handleMessage(Message msg) {
 
+            if (BuildConfig.DEBUG)
+                logMessage(msg);
+
             @ServiceReplyId
             int what = msg.what;
 
@@ -332,9 +354,11 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
                         }
                         ECGDongleDevice device = mp.getDevice();
                         ScanConfig config = mp.getScanConfig();
+                        @DongleStopReason
+                        int reason = msg.arg1;
                         if (device == null)
                             return;
-                        onScanStoppedListener.onScanStopped(device, config);
+                        onScanStoppedListener.onScanStopped(device, config, reason);
                     }
                     break;
 
