@@ -166,8 +166,8 @@ public class SimpleCalibrationSettings implements Serializable {
         return deviceType;
     }
 
-    public DongleChannelConfiguration getChannelConfiguration() {
-        return DongleChannelConfiguration.getForChannelsCount(channelsCount);
+    public DongleLeadConfiguration getChannelConfiguration() {
+        return DongleLeadConfiguration.getForChannelsCount(channelsCount);
     }
 
     public int getSampleSize() {

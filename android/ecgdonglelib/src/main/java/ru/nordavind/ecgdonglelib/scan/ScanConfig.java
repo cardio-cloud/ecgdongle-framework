@@ -28,7 +28,7 @@ public class ScanConfig implements Serializable {
      * channel configuration of current ECG Dongle device.
      * IDs for hardware and software leads.
      */
-    public final DongleChannelConfiguration channelConfiguration;
+    public final DongleLeadConfiguration channelConfiguration;
     /**
      * socket name to connect to
      */
@@ -48,10 +48,6 @@ public class ScanConfig implements Serializable {
      */
 
     protected ScanFilterInfo filter;
-    /**
-     * device calibration settings
-     */
-    private SimpleCalibrationSettings calibrationSettings;
 
     public ScanConfig(String appVersion, SimpleCalibrationSettings calibrationSettings, DongleIdentity ecgDongleIdentity, ScanFilterInfo filter, String socketName) {
         this.appVersion = appVersion;
@@ -62,6 +58,11 @@ public class ScanConfig implements Serializable {
         this.filter = filter;
         this.descriptors = ChannelDescriptorLib.createDescriptors(calibrationSettings);
     }
+
+    /**
+     * device calibration settings
+     */
+    private SimpleCalibrationSettings calibrationSettings;
 
     public ScanConfig(JSONObject source) throws JSONException {
         if (!source.isNull(APP_VERSION)) {
@@ -106,7 +107,7 @@ public class ScanConfig implements Serializable {
     }
 
     /**
-     * see {@link DongleChannelConfiguration#getLeads()}
+     * see {@link DongleLeadConfiguration#getLeads()}
      */
     public Lead[] getLeads() {
         return channelConfiguration.getLeads();

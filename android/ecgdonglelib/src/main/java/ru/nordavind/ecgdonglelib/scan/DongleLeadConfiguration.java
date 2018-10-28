@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Describes hardware and software channels
  */
 
-public enum DongleChannelConfiguration {
+public enum DongleLeadConfiguration {
     Channels1(new Lead[]{Lead.I}, new Lead[]{Lead.I}),
     Channels2(Lead.LEADS6, Lead.LEADS_HARDWARE2),
     Channels3(Lead.LEADS3, Lead.LEADS3),
@@ -29,7 +29,7 @@ public enum DongleChannelConfiguration {
      */
     private final Lead[] hardwareLeads;
 
-    DongleChannelConfiguration(Lead[] leads, Lead[] hardwareLeads) {
+    DongleLeadConfiguration(Lead[] leads, Lead[] hardwareLeads) {
         this.leads = leads;
         this.hardwareLeads = hardwareLeads;
         Arrays.fill(leadNumbers, -1);
@@ -43,7 +43,7 @@ public enum DongleChannelConfiguration {
         }
     }
 
-    public static DongleChannelConfiguration getForChannelsCount(int hardwareChannels) {
+    public static DongleLeadConfiguration getForChannelsCount(int hardwareChannels) {
         switch (hardwareChannels) {
             case 1:
                 return Channels1;
