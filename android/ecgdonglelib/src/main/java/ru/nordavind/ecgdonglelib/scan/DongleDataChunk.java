@@ -10,7 +10,14 @@ import ru.nordavind.ecgdonglelib.util.ObjectRecycler;
 
 /**
  * Data chunk;
- * Holds sample values for all hardware channels for a time interval
+ * Samples are provided in DongleDataChunk objects. Each DongleDataChunk contains samples
+ * for some period of time for all channels.
+ *
+ * Usually, DongleDataChunk contains 100 samples for each lead, but this amount might be changed.
+ * ECG Dongle has some hardware leads. Some leads might be calculated.
+ * For example, basic ECG Dongle has II and III hardware leads, and I, aVR, aVL, aVF leads are calculated.
+ * DongleDataChunk is able to return data samples {@link #getRawData()}
+ * and calculated values in millivolts {@link #getCalculatedData(Lead, float[])}.
  */
 public class DongleDataChunk implements IRecycleable {
     public static final int PACKET_START_MARKER = 0xfe01fe02;

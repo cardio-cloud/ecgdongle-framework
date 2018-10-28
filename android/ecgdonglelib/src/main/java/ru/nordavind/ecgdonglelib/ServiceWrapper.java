@@ -56,7 +56,7 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
     @Nullable
     private OnScanFiltersUpdatedListener onScanFiltersUpdatedListener;
 
-    private ServiceWrapper() {
+    public ServiceWrapper() {
     }
 
     public static IECGDongleServiceWrapper getInstance() {
