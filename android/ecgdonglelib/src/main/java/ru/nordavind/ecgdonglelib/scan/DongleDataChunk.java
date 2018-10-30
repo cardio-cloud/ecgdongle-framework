@@ -18,6 +18,7 @@ import ru.nordavind.ecgdonglelib.util.ObjectRecycler;
  * For example, basic ECG Dongle has II and III hardware leads, and I, aVR, aVL, aVF leads are calculated.
  * DongleDataChunk is able to return data samples {@link #getRawData()}
  * and calculated values in millivolts {@link #getCalculatedData(Lead, float[])}.
+ * You should not change values returned by {@link #getRawData()}
  */
 public class DongleDataChunk implements IRecycleable {
     public static final int PACKET_START_MARKER = 0xfe01fe02;

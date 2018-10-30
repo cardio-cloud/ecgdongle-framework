@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Set;
 
@@ -29,32 +30,34 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
     private static final String SERVICE_NAME = "ru.nordavind.ecgdongleservice.ECGDongleService";
     private static final int PROTO_VERSION = 1;
     private volatile static IECGDongleServiceWrapper instance;
-    @Nullable
-    OnDisconnectedFromServiceListener onDisconnectedFromServiceListener;
+
     private Messenger messenger = null; //used to make an RPC invocation
     private boolean isBound = false;
     private ServiceConnection connection;//receives callbacks from bind and unbind invocations
     private Messenger replyTo = null; //invocation replies are processed by this Messenger
     private Context context;
     private DataReplyReader dataReplyReader;
+
     @Nullable
-    private OnConnectedToServiceListener onConnectedToServiceListener;
+    private WeakReference<OnConnectedToServiceListener> onConnectedToServiceListener;
     @Nullable
-    private OnGotDevicesListener onGotDevicesListener;
+    private WeakReference<OnGotDevicesListener> onGotDevicesListener;
     @Nullable
-    private OnDeviceConnectedListener onDeviceConnectedListener;
+    private WeakReference<OnDeviceConnectedListener> onDeviceConnectedListener;
     @Nullable
-    private OnDeviceDisconnectedListener onDeviceDisconnectedListener;
+    private WeakReference<OnDeviceDisconnectedListener> onDeviceDisconnectedListener;
     @Nullable
-    private OnScanStartedListener onScanStartedListener;
+    private WeakReference<OnScanStartedListener> onScanStartedListener;
     @Nullable
-    private OnNextDataReplyListener onNextDataReplyListener;
+    private WeakReference<OnNextDataReplyListener> onNextDataReplyListener;
     @Nullable
-    private OnScanStoppedListener onScanStoppedListener;
+    private WeakReference<OnScanStoppedListener> onScanStoppedListener;
     @Nullable
-    private OnFailedToStartScanListener onFailedToStartScanListener;
+    private WeakReference<OnFailedToStartScanListener> onFailedToStartScanListener;
     @Nullable
-    private OnScanFiltersUpdatedListener onScanFiltersUpdatedListener;
+    private WeakReference<OnScanFiltersUpdatedListener> onScanFiltersUpdatedListener;
+    @Nullable
+    private WeakReference<OnDisconnectedFromServiceListener> onDisconnectedFromServiceListener;
 
     public ServiceWrapper() {
     }
@@ -87,6 +90,10 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
             }
         }
         Log.d(TAG, "got message: " + builder.toString());
+    }
+
+    private static <T> T getObject(@Nullable WeakReference<T> src) {
+        return src == null ? null : src.get();
     }
 
     @Override
@@ -155,8 +162,10 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
             replyTo = null;
             messenger = null;
             isBound = false;
-            if (onDisconnectedFromServiceListener != null)
-                onDisconnectedFromServiceListener.onDisconnectedFromService();
+            OnDisconnectedFromServiceListener callback = onDisconnectedFromServiceListener == null ?
+                    null : onDisconnectedFromServiceListener.get();
+            if (callback != null)
+                callback.onDisconnectedFromService();
         } else {
             if (connection != null)
                 connection = null;
@@ -168,61 +177,61 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
 
     @Override
     public IECGDongleServiceWrapper setOnConnectedToServiceListener(OnConnectedToServiceListener onConnectedToServiceListener) {
-        this.onConnectedToServiceListener = onConnectedToServiceListener;
+        this.onConnectedToServiceListener = new WeakReference<>(onConnectedToServiceListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnGotDevicesListener(OnGotDevicesListener onGotDevicesListener) {
-        this.onGotDevicesListener = onGotDevicesListener;
+        this.onGotDevicesListener = new WeakReference<>(onGotDevicesListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnDeviceConnectedListener(OnDeviceConnectedListener onDeviceConnectedListener) {
-        this.onDeviceConnectedListener = onDeviceConnectedListener;
+        this.onDeviceConnectedListener = new WeakReference<>(onDeviceConnectedListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnDeviceDisconnectedListener(OnDeviceDisconnectedListener onDeviceDisconnectedListener) {
-        this.onDeviceDisconnectedListener = onDeviceDisconnectedListener;
+        this.onDeviceDisconnectedListener = new WeakReference<>(onDeviceDisconnectedListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnScanStartedListener(OnScanStartedListener onScanStartedListener) {
-        this.onScanStartedListener = onScanStartedListener;
+        this.onScanStartedListener = new WeakReference<>(onScanStartedListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnScanStoppedListener(OnScanStoppedListener onScanStoppedListener) {
-        this.onScanStoppedListener = onScanStoppedListener;
+        this.onScanStoppedListener = new WeakReference<>(onScanStoppedListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnNextDataReplyListener(OnNextDataReplyListener onNextDataReplyListener) {
-        this.onNextDataReplyListener = onNextDataReplyListener;
+        this.onNextDataReplyListener = new WeakReference<>(onNextDataReplyListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnFailedToStartScanListener(OnFailedToStartScanListener onFailedToStartScanListener) {
-        this.onFailedToStartScanListener = onFailedToStartScanListener;
+        this.onFailedToStartScanListener = new WeakReference<>(onFailedToStartScanListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnScanFiltersUpdatedListener(OnScanFiltersUpdatedListener onScanFiltersUpdatedListenerListener) {
-        this.onScanFiltersUpdatedListener = onScanFiltersUpdatedListenerListener;
+        this.onScanFiltersUpdatedListener = new WeakReference<>(onScanFiltersUpdatedListenerListener);
         return this;
     }
 
     @Override
     public IECGDongleServiceWrapper setOnDisconnectedFromServiceListener(OnDisconnectedFromServiceListener onDisconnectedFromServiceListener) {
-        this.onDisconnectedFromServiceListener = onDisconnectedFromServiceListener;
+        this.onDisconnectedFromServiceListener = new WeakReference<>(onDisconnectedFromServiceListener);
         return this;
     }
 
@@ -277,8 +286,10 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
             Log.e(TAG, "onServiceDisconnected: ");
             ServiceWrapper.this.messenger = null;
             isBound = false;
-            if (onDisconnectedFromServiceListener != null)
-                onDisconnectedFromServiceListener.onDisconnectedFromService();
+            OnDisconnectedFromServiceListener callback = onDisconnectedFromServiceListener == null ?
+                    null : onDisconnectedFromServiceListener.get();
+            if (callback != null)
+                callback.onDisconnectedFromService();
         }
 
         @Override
@@ -286,8 +297,10 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
             Log.e(TAG, "onBindingDied: ");
             ServiceWrapper.this.messenger = null;
             isBound = false;
-            if (onDisconnectedFromServiceListener != null)
-                onDisconnectedFromServiceListener.onDisconnectedFromService();
+            OnDisconnectedFromServiceListener callback = onDisconnectedFromServiceListener == null ?
+                    null : onDisconnectedFromServiceListener.get();
+            if (callback != null)
+                callback.onDisconnectedFromService();
         }
     }
 
@@ -304,84 +317,104 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
             MessageParser mp = new MessageParser(msg);
 
             switch (what) {
-                case ServiceReplyId.CONNECT_REPLY:
+                case ServiceReplyId.CONNECT_REPLY: {
                     String versionName = mp.getVersionName();
-                    if (onConnectedToServiceListener != null && versionName != null) {
-                        onConnectedToServiceListener.onConnectedToService(msg.arg1, msg.arg2, mp.getVersionCode(), versionName, mp.getSubscriptionState());
+                    OnConnectedToServiceListener callback = getObject(onConnectedToServiceListener);
+                    if (callback != null && versionName != null) {
+                        callback.onConnectedToService(msg.arg1, msg.arg2, mp.getVersionCode(), versionName, mp.getSubscriptionState());
                     }
                     break;
+                }
 
-                case ServiceReplyId.GET_DEVICES_REPLY:
-                    if (onGotDevicesListener != null)
-                        onGotDevicesListener.onGotDevices(mp.getDevices());
+
+                case ServiceReplyId.GET_DEVICES_REPLY: {
+                    OnGotDevicesListener callback = getObject(onGotDevicesListener);
+                    if (callback != null)
+                        callback.onGotDevices(mp.getDevices());
                     break;
+                }
 
-                case ServiceReplyId.ON_DEVICE_CONNECTED:
-                    if (onDeviceConnectedListener != null) {
+                case ServiceReplyId.ON_DEVICE_CONNECTED: {
+                    OnDeviceConnectedListener callback = getObject(onDeviceConnectedListener);
+                    if (callback != null) {
                         ECGDongleDevice device = mp.getDevice();
                         List<ECGDongleDevice> devices = mp.getDevices();
                         if (device != null)
-                            onDeviceConnectedListener.onDeviceConnected(device, devices);
+                            callback.onDeviceConnected(device, devices);
                     }
                     break;
+                }
 
-                case ServiceReplyId.ON_DEVICE_DISCONNECTED:
-                    if (onDeviceDisconnectedListener != null) {
+                case ServiceReplyId.ON_DEVICE_DISCONNECTED: {
+                    OnDeviceDisconnectedListener callback = getObject(onDeviceDisconnectedListener);
+                    if (callback != null) {
                         ECGDongleDevice device = mp.getDevice();
                         List<ECGDongleDevice> devices = mp.getDevices();
                         if (device != null)
-                            onDeviceDisconnectedListener.onDeviceDisconnected(device, devices);
+                            callback.onDeviceDisconnected(device, devices);
                     }
                     break;
+                }
 
-                case ServiceReplyId.ON_SCAN_START:
-                    if (onScanStartedListener != null) {
+                case ServiceReplyId.ON_SCAN_START: {
+                    OnScanStartedListener callback = getObject(onScanStartedListener);
+                    OnNextDataReplyListener replyListener = getObject(onNextDataReplyListener);
+
+                    if (replyListener != null) {
                         ECGDongleDevice device = mp.getDevice();
                         ScanConfig config = mp.getScanConfig();
                         if (device == null || config == null)
                             return;
 
-                        dataReplyReader = new DataReplyReader(config, onNextDataReplyListener);
-                        onScanStartedListener.onScanStarted(device, config);
+                        dataReplyReader = new DataReplyReader(config, replyListener);
+                        if (callback != null)
+                            callback.onScanStarted(device, config);
                     }
                     break;
+                }
 
-                case ServiceReplyId.ON_SCAN_STOP:
-                    if (onScanStoppedListener != null) {
-                        if (dataReplyReader != null) {
-                            dataReplyReader.stop();
-                            dataReplyReader = null;
-                        }
+                case ServiceReplyId.ON_SCAN_STOP: {
+                    OnScanStoppedListener callback = getObject(onScanStoppedListener);
+                    if (dataReplyReader != null) {
+                        dataReplyReader.stop();
+                        dataReplyReader = null;
+                    }
+                    if (callback != null) {
                         ECGDongleDevice device = mp.getDevice();
                         ScanConfig config = mp.getScanConfig();
                         @DongleStopReason
                         int reason = msg.arg1;
                         if (device == null)
                             return;
-                        onScanStoppedListener.onScanStopped(device, config, reason);
+                        callback.onScanStopped(device, config, reason);
                     }
                     break;
+                }
 
-                case ServiceReplyId.ON_SCAN_START_FAILED:
-                    if (onFailedToStartScanListener != null) {
+                case ServiceReplyId.ON_SCAN_START_FAILED: {
+                    OnFailedToStartScanListener callback = getObject(onFailedToStartScanListener);
+                    if (callback != null) {
                         ECGDongleDevice device = mp.getDevice();
                         if (device == null)
                             return;
-                        onFailedToStartScanListener.onFailedToStartScan(device, msg.arg1);
+                        callback.onFailedToStartScan(device, msg.arg1, msg.arg2);
                     }
                     break;
+                }
 
-                case ServiceReplyId.ON_SCAN_FILTERS_UPDATED:
+                case ServiceReplyId.ON_SCAN_FILTERS_UPDATED: {
                     ScanConfig config = mp.getScanConfig();
                     if (config != null) {
                         if (dataReplyReader != null) {
                             config = dataReplyReader.onFiltersChanged(config.getFilter());
                         }
-                        if (onScanFiltersUpdatedListener != null) {
-                            onScanFiltersUpdatedListener.onScanFiltersUpdated(config.getFilter(), config);
+                        OnScanFiltersUpdatedListener callback = getObject(onScanFiltersUpdatedListener);
+                        if (callback != null) {
+                            callback.onScanFiltersUpdated(config.getFilter(), config);
                         }
                     }
                     break;
+                }
             }
         }
     }

@@ -32,7 +32,7 @@ import ru.nordavind.ecgdonglelib.ServiceWrapper;
 import ru.nordavind.ecgdonglelib.filter.FilterSettings;
 import ru.nordavind.ecgdonglelib.filter.ScanFilterInfo;
 import ru.nordavind.ecgdonglelib.scan.DongleDataChunk;
-import ru.nordavind.ecgdonglelib.scan.PowerFrequencyLib;
+import ru.nordavind.ecgdonglelib.scan.PowerFrequency;
 import ru.nordavind.ecgdonglelib.scan.ScanConfig;
 import ru.nordavind.ecgdonglelib.storage.mitbih.DongleChunkSaverAsync;
 
@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
     }
 
     private void onSetFilters(View view) {
-        FilterSettings filterSettings = new FilterSettings(true, 30,
-                FilterSettings.UpperFrequency.Hz100, PowerFrequencyLib.hz50);
+        FilterSettings filterSettings = new FilterSettings(true, FilterSettings.UpperFrequency.Hz100, PowerFrequency.hz50, 30
+        );
         addLogText("Setting filters...");
         ServiceWrapper.getInstance().setFilters(filterSettings);
     }
@@ -108,8 +108,8 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
             addLogText("Stopping scan...");
             scanButton.setText("Start");
         } else {
-            FilterSettings filterSettings = new FilterSettings(true, 30,
-                    FilterSettings.UpperFrequency.Hz100, PowerFrequencyLib.hz50);
+            FilterSettings filterSettings = new FilterSettings(true, FilterSettings.UpperFrequency.Hz100, PowerFrequency.hz50, 30
+            );
 
             int selected = devicesSpinner.getSelectedItemPosition();
             ServiceWrapper.getInstance().startScan(devices.get(selected), filterSettings);
@@ -174,16 +174,16 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
     }
 
     @Override
-    public void onFailedToStartScan(@NonNull ECGDongleDevice device, int reason) {
-        addLogText("Failed to start scan: " + reason);
+    public void onFailedToStartScan(@NonNull ECGDongleDevice device, int failedToStartReason, int stopReason) {
+        addLogText("Failed to start scan: " + failedToStartReason);
     }
 
     @Override
-    public void onNextDataReply(@NonNull DongleDataChunk dataReply) {
-        dataReply.retain();
+    public void onNextDataReply(@NonNull DongleDataChunk dataChunk) {
+        dataChunk.retain();
         handler.post(() -> {
-            addLogText("got next data reply: " + dataReply.getChunkNum());
-            dataReply.release();
+            addLogText("got next data reply: " + dataChunk.getChunkNum());
+            dataChunk.release();
         });
     }
 
@@ -204,10 +204,7 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
     }
 
     private void connect() {
-        if (ServiceWrapper.getInstance().isServiceAppInstalled(this)) {
-            ServiceWrapper.getInstance().init(this);
-            addLogText("Initialising...");
-        } else {
+        if (!ServiceWrapper.getInstance().isServiceAppInstalled(this)) {
             new AlertDialog.Builder(this)
                     .setTitle("Alert")
                     .setMessage("Need to install lib app to work with ECG Dongle")
@@ -220,7 +217,14 @@ public class MainActivity extends AppCompatActivity implements IECGDongleService
                         }
                     })
                     .show();
+        } else {
+            ServiceWrapper.getInstance().init(this);
+            addLogText("Initialising...");
         }
+    }
+
+    private void checkInstalled() {
+
     }
 
     private void disconnect() {

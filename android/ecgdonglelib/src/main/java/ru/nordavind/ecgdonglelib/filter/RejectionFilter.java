@@ -9,25 +9,31 @@ import java.util.Locale;
 import ru.nordavind.ecgdonglelib.util.MathUtil;
 
 /**
- * Contains settings of a Rejector filter
+ * Contains settings of a Rejection filter
  */
 
-public class RejectorFilter extends Filter implements Serializable {
+public class RejectionFilter extends Filter implements Serializable {
     private static final String REJECTOR_QUALITY = "q";
     private static final String REJECTOR_Q = "rq";
     private static final String REJECTOR_F = "rf";
+
+    /**
+     * rejection filter quality. should be 24 - 100
+     */
     public final int rejQuality;
+
     public final int rej_f;
+
     public final int rej_q;
 
-    public RejectorFilter(double frequency, int rejQuality, int rej_f, int rej_q) {
-        super(FilterType.Rejector, frequency);
+    public RejectionFilter(double frequency, int rejQuality, int rej_f, int rej_q) {
+        super(FilterType.Rejection, frequency);
         this.rejQuality = rejQuality;
         this.rej_f = rej_f;
         this.rej_q = rej_q;
     }
 
-    public RejectorFilter(JSONObject source) throws JSONException {
+    public RejectionFilter(JSONObject source) throws JSONException {
         super(source);
         rejQuality = source.getInt(REJECTOR_QUALITY);
         rej_q = source.getInt(REJECTOR_Q);

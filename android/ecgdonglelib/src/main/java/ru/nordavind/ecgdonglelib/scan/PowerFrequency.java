@@ -3,10 +3,10 @@ package ru.nordavind.ecgdonglelib.scan;
 /**
  * Power frequency (50 Hz and 60 Hz). used for rejector filter
  */
-public enum PowerFrequencyLib {
+public enum PowerFrequency {
     hz50, hz60, None;
 
-    public static PowerFrequencyLib fromInt(int val) {
+    public static PowerFrequency fromInt(int val) {
         switch (val) {
             case 0:
                 return hz50;
@@ -19,7 +19,7 @@ public enum PowerFrequencyLib {
         return null;
     }
 
-    public static PowerFrequencyLib ofFrequencyHz(int val) {
+    public static PowerFrequency ofFrequencyHz(int val) {
         switch (val) {
             case 50:
                 return hz50;

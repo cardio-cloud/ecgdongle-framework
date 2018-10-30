@@ -35,7 +35,7 @@ public class SimpleCalibrationSettings implements Serializable {
     private final int valuesInReply;
     private final int version;
     private final StringDongleDeviceType deviceType;
-    private final PowerFrequencyLib rejectFilter;
+    private final PowerFrequency rejectFilter;
     private final boolean canEnableSoftwareFilters;
 
     public SimpleCalibrationSettings(int channelsCount, double[] channelB, double[] channelK,
@@ -54,12 +54,12 @@ public class SimpleCalibrationSettings implements Serializable {
         this.valuesInReply = valuesInReply;
         this.version = version;
         this.deviceType = new StringDongleDeviceType(deviceTypeName);
-        this.rejectFilter = PowerFrequencyLib.ofFrequencyHz(rejectFilterFrequencyHz);
+        this.rejectFilter = PowerFrequency.ofFrequencyHz(rejectFilterFrequencyHz);
         this.canEnableSoftwareFilters = canEnableSoftwareFilters;
     }
 
     public SimpleCalibrationSettings(JSONObject source) throws JSONException {
-        rejectFilter = PowerFrequencyLib.fromInt(source.getInt(KEY_REJECT_FILTER));
+        rejectFilter = PowerFrequency.fromInt(source.getInt(KEY_REJECT_FILTER));
         channelsCount = source.getInt(KEY_CHANNELS_COUNT);
         absentValue = source.getInt(KEY_ABSENT_VALUE);
         max = source.getInt(KEY_MAX);

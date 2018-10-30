@@ -16,9 +16,9 @@ public enum FilterType {
     Hpf,
 
     /**
-     * Rejector filter
+     * Band-rejection filter
      */
-    Rejector,
+    Rejection,
 
     /**
      * Median filter
@@ -48,7 +48,7 @@ public enum FilterType {
             case Lpf:
                 return "LPF";
 
-            case Rejector:
+            case Rejection:
                 return "RJ";
 
             case Median:

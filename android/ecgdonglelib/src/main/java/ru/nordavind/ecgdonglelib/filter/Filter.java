@@ -13,14 +13,24 @@ import ru.nordavind.ecgdonglelib.util.MathUtil;
 
 
 /**
- * Holds data for Hi-pass and Low-pass filters
+ * Represents Hi-pass and Low-pass filters
+ * {@link #frequency} field holds filter frequency in Hz
+ *
  */
 
 public class Filter implements IFilter, Serializable {
     public static final String FILTER_TYPE = "t";
     private static final String FREQUENCY = "f";
+
+    /**
+     * filter frequency in Hz
+     */
     public final double frequency;
-    protected final FilterType filterType;
+
+    /**
+     * filter type
+     */
+    public final FilterType filterType;
 
     public Filter(FilterType filterType, double frequency) {
         this.filterType = filterType;
@@ -39,8 +49,8 @@ public class Filter implements IFilter, Serializable {
             case Lpf:
                 return new Filter(source);
 
-            case Rejector:
-                return new RejectorFilter(source);
+            case Rejection:
+                return new RejectionFilter(source);
 
             case Median:
                 return new MedianFilter(source);

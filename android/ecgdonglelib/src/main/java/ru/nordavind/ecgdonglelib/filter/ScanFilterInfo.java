@@ -13,12 +13,29 @@ import java.util.List;
 
 /**
  * Holds information of scan filters
+ *
+ * Filters include:
+
+ * 1. Low pass filter at 35 of 100 Hz.
+ * 2. High Pass filter at 0.1 Hz.
+ * 3. Median filter
+ * 4. Band-rejection filter at 50 or 60 Hz. It is used to remove powerline pickup. It is not used if Low-pass filter is set to 35 Hz.
+ *
+ * This class hold a list of {@link IFilter} objects. Each {@link IFilter} object represent one filter.
+ * See {@link Filter}, {@link MedianFilter}, {@link RejectionFilter} for details on specific filters.
+ *
+ * You can call {@link ScanFilterInfo#describeEn()} and {@link IFilter#describeEn()}
+ * to get short filter(s) description.
+ *
  */
 
 public class ScanFilterInfo implements IScanFilters, Serializable {
     private static final String KEY_FILTER_SETTINGS = "s";
     private static final String KEY_FILTERS = "f";
 
+    /**
+     * FilterSettings object that was used to configure filters
+     */
     public final FilterSettings filterSettings;
 
     public final boolean enabled;

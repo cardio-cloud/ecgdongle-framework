@@ -92,9 +92,10 @@ public class DongleChunkSaverAsync implements IChunkSaver {
                 if (saver != null && chunk.getChunkNum() >= firstChunkNum) {
                     saver.writeChunk(chunk);
                 }
-                chunk.release();
             } catch (IOException e) {
                 onException(e);
+            } finally {
+                chunk.release();
             }
         });
     }

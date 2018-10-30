@@ -7,11 +7,15 @@ import java.io.Serializable;
 import java.util.Locale;
 
 /**
- * Contains settings of a median filter
+ * represents a median filter
  */
 
 public class MedianFilter implements IFilter, Serializable {
     private static final String ORDER = "o";
+
+    /**
+     * order of median filter
+     */
     public final int order;
 
     public MedianFilter(int order) {

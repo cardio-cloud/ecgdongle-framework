@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 import ru.nordavind.ecgdonglelib.Settings;
-import ru.nordavind.ecgdonglelib.scan.PowerFrequencyLib;
+import ru.nordavind.ecgdonglelib.scan.PowerFrequency;
 
 /**
  * Class used to configure filters
@@ -21,7 +21,7 @@ public class FilterSettings implements Serializable {
     public final boolean doFilter;
 
     /**
-     * Rejector filter quality
+     * Rejection filter quality
      * min = 24, max = 100
      */
     @IntRange(from = Settings.V2_REJECTION_FILTER_MIN_QUALITY, to = Settings.V2_REJECTION_FILTER_MAX_QUALITY)
@@ -33,11 +33,11 @@ public class FilterSettings implements Serializable {
     public final UpperFrequency upperFrequency;
 
     /**
-     * Frequency for a Rejector filter
-     * Rejector filter is used to filter power lines induction noise;
+     * Frequency for a Rejection filter
+     * Rejection filter is used to filter power lines induction noise;
      * 50 Hz ot 60 Hz
      */
-    public final PowerFrequencyLib rejectionFilterFrequency;
+    public final PowerFrequency rejectionFilterFrequency;
 
     private final String KEY_FILTER_ENABLED = "f";
     private final String KEY_REJECT_FILTER_QUALITY = "q";
@@ -48,23 +48,33 @@ public class FilterSettings implements Serializable {
         doFilter = source.getBoolean(KEY_FILTER_ENABLED);
         if (doFilter) {
             rejFilterQ = source.getInt(KEY_REJECT_FILTER_QUALITY);
-            rejectionFilterFrequency = PowerFrequencyLib.ofFrequencyHz(source.getInt(KEY_REJECTION_FILTER_FREQUENCY));
+            rejectionFilterFrequency = PowerFrequency.ofFrequencyHz(source.getInt(KEY_REJECTION_FILTER_FREQUENCY));
             upperFrequency = UpperFrequency.ofFrequency(source.getInt(KEY_UPPER_FERQUENCY));
         } else {
             rejFilterQ = Settings.V2_REJECTION_FILTER_DEF_QUALITY;
             upperFrequency = UpperFrequency.Hz100;
-            rejectionFilterFrequency = PowerFrequencyLib.None;
+            rejectionFilterFrequency = PowerFrequency.None;
         }
     }
 
-    public FilterSettings(boolean doFilter, int rejFilterQ, UpperFrequency upperFrequency, PowerFrequencyLib rejectionFilterFrequency) {
+    /**
+     * primary used constructor
+     *
+     * @param doFilter                 set to true to enable filters
+     * @param upperFrequency           upper frequency for Low Pass filter
+     * @param rejectionFilterFrequency Band-rejection filter is used to remove power line pickup.
+     *                                 Set band-rejection filter to 50 or 60 Hz according to
+     *                                 powerline frequency used in area where the scan takes place.
+     * @param rejFilterQ               band-rejection filter quality. Between 24 and 100.
+     */
+    public FilterSettings(boolean doFilter, UpperFrequency upperFrequency, PowerFrequency rejectionFilterFrequency, int rejFilterQ) {
         this.doFilter = doFilter;
         this.rejFilterQ = rejFilterQ;
         this.upperFrequency = upperFrequency;
         this.rejectionFilterFrequency = rejectionFilterFrequency;
     }
 
-    public FilterSettings(PowerFrequencyLib rejectionFilterFrequency, FilterSettings source) {
+    public FilterSettings(PowerFrequency rejectionFilterFrequency, FilterSettings source) {
         this.rejectionFilterFrequency = rejectionFilterFrequency;
         this.doFilter = source.doFilter;
         this.rejFilterQ = source.rejFilterQ;
