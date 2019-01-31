@@ -161,4 +161,11 @@ public class ScanConfig implements Serializable {
         }
         return size * 4;
     }
+
+    /**
+     * @return ECG Dongle Identity that holds device id, firmware version, channel count etc.
+     */
+    public DongleIdentity getEcgDongleIdentity() {
+        return ecgDongleIdentity;
+    }
 }

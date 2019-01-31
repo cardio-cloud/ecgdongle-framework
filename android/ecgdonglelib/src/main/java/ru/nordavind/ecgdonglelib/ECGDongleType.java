@@ -22,5 +22,5 @@ public enum ECGDongleType {
     /**
      * new USB ECG Dongle
      */
-    USBDongleV2
+    USBDongleV2;
 }

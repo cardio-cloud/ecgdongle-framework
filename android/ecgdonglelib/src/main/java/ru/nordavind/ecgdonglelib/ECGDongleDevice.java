@@ -1,5 +1,7 @@
 package ru.nordavind.ecgdonglelib;
 
+import android.support.annotation.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +16,7 @@ import java.util.List;
 public class ECGDongleDevice implements Serializable {
     private static final String KEY_TYPE = "t";
     private static final String KEY_ID = "id";
+    private static final String KEY_UUID = "uuid";
 
     /**
      * device type
@@ -25,14 +28,25 @@ public class ECGDongleDevice implements Serializable {
      */
     public final String deviceId;
 
-    public ECGDongleDevice(ECGDongleType type, String deviceId) {
+    /**
+     * connected device UUID string, should match {@link ru.nordavind.ecgdonglelib.scan.DongleIdentity#uuid}
+     * it's OK only on Android > 5.0 (21)
+     * it is zero-filled on Android < 5.0, for Demo devices and for BLE devices
+     * Can be null for older ECG Dongle Service versions
+     */
+    @Nullable
+    public final String deviceUUID;
+
+    public ECGDongleDevice(ECGDongleType type, String deviceId, String deviceUUID) {
         this.type = type;
         this.deviceId = deviceId;
+        this.deviceUUID = deviceUUID;
     }
 
     public ECGDongleDevice(JSONObject src) throws JSONException {
         type = ECGDongleType.values()[src.getInt(KEY_TYPE)];
         deviceId = src.getString(KEY_ID);
+        deviceUUID = src.optString(KEY_UUID);
     }
 
     public static List<ECGDongleDevice> fromJsonArray(JSONArray srcArr) throws JSONException {
@@ -54,6 +68,7 @@ public class ECGDongleDevice implements Serializable {
     public JSONObject toJsonObject() throws JSONException {
         return new JSONObject()
                 .put(KEY_TYPE, type.ordinal())
-                .put(KEY_ID, deviceId);
+                .put(KEY_ID, deviceId)
+                .put(KEY_UUID, deviceUUID);
     }
 }
