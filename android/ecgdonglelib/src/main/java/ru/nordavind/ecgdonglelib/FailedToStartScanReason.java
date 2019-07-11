@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
         FailedToStartScanReason.STOP_REQUESTED_BEFORE_SCAN_START,
         FailedToStartScanReason.EXCEPTION_WRITING_DATA_CHUNK,
         FailedToStartScanReason.DEVICE_STOPPED,
+        FailedToStartScanReason.BAD_ACCESS_CODE,
 })
 
 @Target({ElementType.FIELD, ElementType.LOCAL_VARIABLE, ElementType.METHOD, ElementType.PARAMETER})
@@ -69,5 +70,10 @@ public @interface FailedToStartScanReason {
      * device stopped before scan actually started. See {@link DongleStopReason}
      */
     int DEVICE_STOPPED = 10;
+
+    /**
+     * Device's access code does not match to access code provided at scan start
+     */
+    int BAD_ACCESS_CODE = 11;
 
 }

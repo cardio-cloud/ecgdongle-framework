@@ -74,6 +74,14 @@ public class MessageParser {
         }
     }
 
+    public boolean hasAccessCode() {
+        return bundle.containsKey(MessageBuilder.KEY_ACCESS_CODE);
+    }
+
+    public long getAccessCode() {
+        return bundle.getLong(MessageBuilder.KEY_ACCESS_CODE);
+    }
+
     public int getVersionCode() {
         if (bundle == null || !bundle.containsKey(MessageBuilder.KEY_VERSION_CODE))
             return 0;

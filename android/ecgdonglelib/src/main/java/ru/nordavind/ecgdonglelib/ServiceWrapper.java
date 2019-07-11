@@ -248,6 +248,14 @@ public class ServiceWrapper implements IECGDongleServiceWrapper {
     }
 
     @Override
+    public boolean startScan(ECGDongleDevice device, FilterSettings filterSettings, long accessCode) {
+        return isBound && new MessageBuilder(ServiceRequestId.START_SCANNING)
+                .setDevice(device).setFilter(filterSettings)
+                .setAccessCode(accessCode)
+                .send(messenger, replyTo);
+    }
+
+    @Override
     public boolean setFilters(FilterSettings filterSettings) {
         return isBound && new MessageBuilder(ServiceRequestId.SET_FILTERS)
                 .setFilter(filterSettings)

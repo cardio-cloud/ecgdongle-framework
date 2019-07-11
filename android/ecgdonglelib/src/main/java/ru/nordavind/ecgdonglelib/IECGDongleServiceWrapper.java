@@ -99,6 +99,21 @@ public interface IECGDongleServiceWrapper {
     boolean startScan(ECGDongleDevice device, FilterSettings filterSettings);
 
     /**
+     * same as {@link #startScan(ECGDongleDevice, FilterSettings)},
+     * but will fail to start if accessCode does not match
+     * <p>
+     * If access code didn't match, the
+     * {@link OnFailedToStartScanListener#onFailedToStartScan(ECGDongleDevice, int, int)}
+     * called with failedToStartReason = {@link FailedToStartScanReason#BAD_ACCESS_CODE}
+     *
+     * @param device
+     * @param filterSettings
+     * @param accessCode
+     * @return
+     */
+    boolean startScan(ECGDongleDevice device, FilterSettings filterSettings, long accessCode);
+
+    /**
      * sets filters for current scan
      * does nothing if no scan running
      *

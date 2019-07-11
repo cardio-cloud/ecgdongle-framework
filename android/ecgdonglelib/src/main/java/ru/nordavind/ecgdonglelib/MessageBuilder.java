@@ -24,6 +24,7 @@ public class MessageBuilder {
     static final String KEY_VERSION_CODE = "versionCode";
     static final String KEY_VERSION_NAME = "versionName";
     static final String KEY_SUBSCRIPTION_STATE = "subscribed";
+    static final String KEY_ACCESS_CODE = "accessCode";
     private final int what;
     private final int arg1;
     private final int arg2;
@@ -143,6 +144,14 @@ public class MessageBuilder {
             bundle = new Bundle();
 
         bundle.putInt(KEY_SUBSCRIPTION_STATE, subsState);
+        return this;
+    }
+
+    public MessageBuilder setAccessCode(long accessCode) {
+        if (bundle == null)
+            bundle = new Bundle();
+
+        bundle.putLong(KEY_ACCESS_CODE, accessCode);
         return this;
     }
 }
